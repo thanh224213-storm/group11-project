@@ -1,1 +1,1 @@
-console.log('App gốc');
+console.log('App gốc từ main');
