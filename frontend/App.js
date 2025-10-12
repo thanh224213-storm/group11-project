@@ -1,1 +1,1 @@
-console.log('App from frontend');
+console.log('Hello from FRONTEND');
