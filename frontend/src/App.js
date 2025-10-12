@@ -1,11 +1,8 @@
-// src/App.js (main)
-import React from "react";
-
 function App() {
   return (
     <div>
-      <h2>Quản lý người dùng</h2>
-      <p>Phiên bản gốc từ nhánh main</p>
+      <h1>Database: Lưu trữ và truy xuất dữ liệu</h1>
+      <p>Quản lý thông tin người dùng trong cơ sở dữ liệu.</p>
     </div>
   );
 }
