@@ -1,12 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 
 const UserList = () => {
   const [users, setUsers] = useState([]);
 
+  // Hàm lấy danh sách user từ backend
   const fetchUsers = async () => {
     try {
-      const res = await axios.get("http://192.168.69.229:5000/users")
+      const res = await axios.get("http://192.168.69.229:5000/users");
       setUsers(res.data);
     } catch (err) {
       console.error("Lỗi GET:", err);
@@ -15,14 +16,14 @@ const UserList = () => {
 
   useEffect(() => {
     fetchUsers();
-  }, []); // Chạy 1 lần khi component mount
+  }, []);
 
   return (
     <div>
-      <h3>Danh sách người dùng:</h3>
+      <h3>Danh sách người dùng</h3>
       <ul>
         {users.map((u) => (
-          <li key={u.id}>
+          <li key={u._id}>
             {u.name} - {u.email}
           </li>
         ))}
