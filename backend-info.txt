@@ -1,5 +1,1 @@
-<<<<<<< HEAD
-Backend branch initialized
-=======
-Backend branch initialized by Thanh
->>>>>>> e0ececf7063b367265e56cbea45571160e0c6042
+Nội dung hoàn chỉnh sau khi hợp nhất 2 bên

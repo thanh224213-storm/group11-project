@@ -1,1 +1,1 @@
-console.log('App gốc từ main');
+console.log('Hello from BACKEND and FRONTEND (resolved)');
