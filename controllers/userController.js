@@ -1,33 +1,32 @@
-// controllers/userController.js
+let users = []; // mảng tạm
 
-// Mảng tạm lưu danh sách người dùng (dữ liệu demo)
-let users = [
-  { id: 1, name: "Thanh", email: "thanh@example.com" },
-  { id: 2, name: "Do", email: "do@example.com" },
-  { id: 3, name: "Dang", email: "dang@example.com" }
-
-];
-
-// [GET] /users - Lấy danh sách người dùng
+// GET: lấy danh sách
 exports.getUsers = (req, res) => {
   res.json(users);
 };
 
-// [POST] /users - Thêm người dùng mới
+// POST: thêm user
 exports.createUser = (req, res) => {
-  const { name, email } = req.body;
-
-  // Kiểm tra dữ liệu đầu vào
-  if (!name || !email) {
-    return res.status(400).json({ message: "Vui lòng nhập đầy đủ name và email" });
-  }
-
-  const newUser = {
-    id: users.length + 1,
-    name,
-    email
-  };
-
+  const newUser = { id: Date.now(), ...req.body };
   users.push(newUser);
-  res.status(201).json(newUser);
+  res.json(newUser);
+};
+
+// PUT: sửa user
+exports.updateUser = (req, res) => {
+  const { id } = req.params;
+  const index = users.findIndex(u => u.id == id);
+  if (index !== -1) {
+    users[index] = { ...users[index], ...req.body };
+    res.json(users[index]);
+  } else {
+    res.status(404).json({ message: "User not found" });
+  }
+};
+
+// DELETE: xóa user
+exports.deleteUser = (req, res) => {
+  const { id } = req.params;
+  users = users.filter(u => u.id != id);
+  res.json({ message: "User deleted" });
 };
