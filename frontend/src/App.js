@@ -6,6 +6,7 @@ function App() {
   const [refresh, setRefresh] = useState(false);
 
   const handleUserAdded = () => {
+    // Đảo trạng thái để trigger reload danh sách
     setRefresh(!refresh);
   };
 
@@ -13,7 +14,7 @@ function App() {
     <div>
       <h2>Quản lý người dùng</h2>
       <AddUser onUserAdded={handleUserAdded} />
-      <UserList key={refresh} /> {/* key thay đổi sẽ reload danh sách */}
+      <UserList key={refresh} /> {/* key đổi -> tự render lại */}
     </div>
   );
 }
