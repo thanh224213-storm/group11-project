@@ -1,3 +1,6 @@
+
+const { parser } = require('../config/cloudinary');
+router.post("/upload-avatar", parser.single('avatar'), async (req, res) => {
 // CÁC IMPORT CỦA BẠN (giả sử đã có)
 const express = require("express");
 const jwt = require("jsonwebtoken");
@@ -16,11 +19,35 @@ const nodemailer = require('nodemailer');
 // MIDDLEWARE (Code Admin của bạn)
 // ===========================================
 const verifyAdmin = (req, res, next) => {
+
   const token = req.header("Authorization")?.replace("Bearer ", "");
   if (!token) {
     return res.status(401).json({ message: "Không có quyền truy cập" });
   }
   try {
+
+    if (!req.file) {
+      return res.status(400).json({ message: "Không có file nào được tải lên." });
+    }
+    const avatarUrl = req.file.path;
+    const decoded = jwt.verify(token, "secretKey");
+
+    // Cập nhật req.userId cho cloudinary storage dùng
+    req.userId = decoded.userId; 
+
+    const updatedUser = await User.findByIdAndUpdate(
+      decoded.userId, { avatar: avatarUrl }, { new: true }
+    );
+
+    if (!updatedUser) {
+        return res.status(404).json({ message: "Người dùng không tồn tại" });
+    }
+
+    res.status(200).json({ 
+      message: "Cập nhật avatar thành công!", 
+      avatarUrl: updatedUser.avatar 
+    });
+
     const decoded = jwt.verify(token, "secretKey");
     if (decoded.role !== "admin") {
       return res.status(403).json({ message: "Không có quyền truy cập" });
@@ -115,12 +142,17 @@ router.post("/reset-password", async (req, res) => {
     await user.save();
 
     res.status(200).json({ message: "Cập nhật mật khẩu thành công!" });
+
   } catch (err) {
     res.status(500).json({ message: "Lỗi server", error: err.message });
   }
 });
 
+
+
+
 // ===========================================
 // ✅ EXPORT CHỈ MỘT LẦN Ở CUỐI FILE
 // ===========================================
 module.exports = router;
+
