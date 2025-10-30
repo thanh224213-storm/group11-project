@@ -1,14 +1,11 @@
-// src/App.js
-import React from "react";
 
-function App() {
-  return (
-    <div>
-      <h1>Ứng dụng Quản lý Người dùng</h1>
-      <h2>Quản lý người dùng</h2>
-      <p>Phiên bản gốc từ nhánh main</p>
-    </div>
-  );
-}
+import { Router } from "express";
+import ForgotPassword from "./components/ForgotPassword";
+import ResetPassword from "./components/ResetPassword";
 
-export default App;
+<Routes>
+    <Route path="/admin" element={<Admin />} />
+    <Route path="/logout" element={<Logout />} />
+    <Route path="/forgot-password" element={<ForgotPassword />} />
+    <Route path="/reset/:token" element={<ResetPassword />} />
+  </Routes>
