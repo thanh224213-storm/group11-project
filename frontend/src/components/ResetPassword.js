@@ -1,7 +1,12 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+ feature/refresh-token
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import './style.css';
+
+import { useParams, useNavigate } from 'react-router-dom';
+
+
 const ResetPassword = () => {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -52,9 +57,14 @@ const ResetPassword = () => {
       </form>
       {message && <p style={{ color: 'green' }}>{message}</p>}
       {error && <p style={{ color: 'red' }}>{error}</p>}
+feature/refresh-token
       <Link to="/login" style={{ marginTop: '10px' }}>
         Quay lại Đăng nhập
       </Link>
+
+      <button onClick={() => navigate('/login')} style={{ marginTop: '10px' }}>
+        Quay lại Đăng nhập
+      </button>
     </div>
   );
 };

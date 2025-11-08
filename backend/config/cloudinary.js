@@ -13,7 +13,11 @@ const storage = new CloudinaryStorage({
   params: {
     folder: 'user-avatars',
     format: async (req, file) => 'png',
+feature/refresh-token
     public_id: (req, file) => `avatar-${req.userId || Date.now()}`
+
+    public_id: (req, file) => `avatar-${req.userId || Date.now()}` // Thêm Date.now() để an toàn
+
   },
 });
 
