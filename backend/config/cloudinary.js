@@ -12,10 +12,21 @@ cloudinary.config({
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
+ feature/avatar-upload
     folder: 'avatars',  // Folder lưu ảnh trong Cloudinary
     allowed_formats: ['jpg', 'png', 'jpeg'],
     transformation: [{ width: 500, height: 500, crop: 'limit' }]  // Resize ảnh trước khi upload
   }
+
+    folder: 'user-avatars',
+    format: async (req, file) => 'png',
+feature/refresh-token
+    public_id: (req, file) => `avatar-${req.userId || Date.now()}`
+
+    public_id: (req, file) => `avatar-${req.userId || Date.now()}` // Thêm Date.now() để an toàn
+
+  },
+
 });
 
 const parser = multer({ storage: storage });
