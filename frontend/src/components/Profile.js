@@ -113,10 +113,10 @@ const Profile = () => {
 
         <div className="detail">
           <label>Role:</label>
-          {isEditing ? (
+          {isEditing && user.role === 'admin' ? (  // Chỉ cho phép admin chỉnh sửa role
             <input type="text" value={role} onChange={(e) => setRole(e.target.value)} />
           ) : (
-            <span>{user.role}</span>
+            <span>{user.role}</span>  // Nếu không phải admin, chỉ hiển thị role
           )}
         </div>
       </div>
