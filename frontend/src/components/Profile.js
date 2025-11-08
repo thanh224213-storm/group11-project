@@ -1,100 +1,143 @@
-// Profile.js
 import React, { useState, useEffect } from "react";
-// ... (các import khác)
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { apiRequest } from '../api';  // Đảm bảo bạn đã import apiRequest từ api.js
+import './style.css'; // Liên kết với file CSS
 
 const Profile = () => {
-  const [user, setUser] = useState({ email: "", role: "", avatar: "" }); // Thêm avatar
-  // ... (các state khác)
-  const [selectedFile, setSelectedFile] = useState(null); // State cho file ảnh
+  const [user, setUser] = useState({ email: "", role: "", avatar: "" });
+  const [email, setEmail] = useState("");
+  const [role, setRole] = useState("");
+  const [isEditing, setIsEditing] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [selectedFile, setSelectedFile] = useState(null);
   const [uploadMessage, setUploadMessage] = useState('');
+  const navigate = useNavigate();
 
-  // ...
-  // Trong hàm fetchUserData, đảm bảo bạn lấy cả avatar
+  // Hàm gọi API để lấy thông tin người dùng
   const fetchUserData = async (token) => {
     try {
-      const response = await axios.get("http://localhost:5000/api/profile", {
+      const response = await apiRequest({
+        method: 'get',
+        url: "http://localhost:5000/api/profile",
         headers: { Authorization: `Bearer ${token}` },
       });
-      setUser(response.data); // response.data nên có { email, role, avatar }
+      setUser(response.data);
       setEmail(response.data.email);
       setRole(response.data.role);
     } catch (err) {
-      // ...
+      setErrorMessage("Không thể tải thông tin người dùng.");
     }
   };
-  
-  // ... (handleUpdateProfile giữ nguyên)
 
-  // HÀM MỚI: Xử lý chọn file
+  useEffect(() => {
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      alert("Vui lòng đăng nhập trước!");
+      navigate("/login");
+    } else {
+      fetchUserData(token); // Gửi token vào yêu cầu API
+    }
+  }, [navigate]);
+
+  const handleUpdateProfile = async () => {
+    let token = localStorage.getItem("accessToken");
+    try {
+      const response = await apiRequest({
+        method: 'put',
+        url: "http://localhost:5000/api/profile",
+        headers: { Authorization: `Bearer ${token}` },
+        data: { email, role },
+      });
+      setUser(prevUser => ({ ...prevUser, email: email, role: role }));
+      alert(response.data.message);
+      setIsEditing(false);
+    } catch (err) {
+      alert("Cập nhật thất bại: " + err.message);
+    }
+  };
+
   const handleFileChange = (e) => {
     setSelectedFile(e.target.files[0]);
-    setUploadMessage('');
+    setUploadMessage(''); // Reset upload message when file is selected
   };
 
-  // HÀM MỚI: Xử lý upload
   const handleAvatarUpload = async () => {
-    if (!selectedFile) {
-      setUploadMessage('Vui lòng chọn 1 file ảnh.');
-      return;
-    }
-
-    const token = localStorage.getItem("token");
+    if (!selectedFile) return;
+    const token = localStorage.getItem("accessToken");
     const formData = new FormData();
-    formData.append('avatar', selectedFile); // 'avatar' phải khớp với API
+    formData.append('avatar', selectedFile);
 
     try {
-      const res = await axios.post(
-        "http://localhost:5000/api/upload-avatar", 
-        formData, 
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-            'Authorization': `Bearer ${token}`
-          }
-        }
-      );
-      
-      setUploadMessage(res.data.message);
-      // Cập nhật avatar trên UI
-      setUser(prevUser => ({ ...prevUser, avatar: res.data.avatarUrl }));
-      setSelectedFile(null); // Xóa file đã chọn
+      const res = await apiRequest({
+        method: 'post',
+        url: "http://localhost:5000/api/upload-avatar",
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          'Authorization': `Bearer ${token}`,
+        },
+        data: formData,
+      });
 
+      setUploadMessage(res.data.message);
+      setUser(prevUser => ({ ...prevUser, avatar: res.data.avatarUrl }));
+      setSelectedFile(null); // Clear file after successful upload
     } catch (err) {
       setUploadMessage('Lỗi khi upload: ' + (err.response?.data?.message || err.message));
     }
   };
 
-
   return (
-    <div>
-      <h2>Welcome to the User Profile Page</h2>
+    <div className="profile-container">
+      <h2>Thông Tin Cá Nhân</h2>
+      {errorMessage && <div className="alert">{errorMessage}</div>}
 
-      {/* ================================= */}
-      {/* KHUNG AVATAR MỚI */}
-      {/* ================================= */}
-      <h3>Avatar</h3>
-      {user.avatar && (
-        <img 
-          src={user.avatar} 
-          alt="Avatar" 
-          style={{ width: '150px', height: '150px', borderRadius: '50%' }} 
-        />
-      )}
-      <div>
-        <input type="file" onChange={handleFileChange} />
-        <button onClick={handleAvatarUpload} disabled={!selectedFile}>
-          Upload Avatar
-        </button>
+      <div className="profile-avatar">
+        {user.avatar && (
+          <img src={user.avatar} alt="Avatar" />
+        )}
+        <input type="file" accept="image/*" onChange={handleFileChange} />
+        <button onClick={handleAvatarUpload} disabled={!selectedFile}>Upload Avatar</button>
         {uploadMessage && <p>{uploadMessage}</p>}
       </div>
-      <hr />
-      {/* ================================= */}
 
-      <h3>Thông Tin Cá Nhân</h3>
-      {/* ... (code form chỉnh sửa email/role) ... */}
-      
+      <div className="profile-details">
+        <div className="detail">
+          <label>Email:</label>
+          {isEditing ? (
+            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+          ) : (
+            <span>{user.email}</span>
+          )}
+        </div>
+
+        <div className="detail">
+          <label>Role:</label>
+          {isEditing ? (
+            <input type="text" value={role} onChange={(e) => setRole(e.target.value)} />
+          ) : (
+            <span>{user.role}</span>
+          )}
+        </div>
+      </div>
+
+      <button onClick={() => setIsEditing(!isEditing)} className="edit-btn">
+        {isEditing ? "Hủy" : "Chỉnh sửa"}
+      </button>
+      {isEditing && (
+        <button onClick={handleUpdateProfile}>Cập nhật</button>
+      )}
+
       <hr />
-      {/* ... (code các nút Admin/Logout) ... */}
+      
+      {/* Chỉ hiển thị nút "Quản lý Admin" nếu người dùng có role là admin */}
+      {user.role === 'admin' && (
+        <button onClick={() => navigate('/admin')} style={{ marginRight: '10px' }}>
+          Quản lý Admin
+        </button>
+      )}
+
+      <button onClick={() => navigate('/logout')} className="logout-btn">Đăng xuất</button>
     </div>
   );
 };
