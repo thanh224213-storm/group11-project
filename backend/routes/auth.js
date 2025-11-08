@@ -212,7 +212,11 @@ router.post("/upload-avatar", verifyAccessToken, parser.single('avatar'), async 
       avatarUrl: updatedUser.avatar 
     });
   } catch (err) {
-    res.status(500).json({ message: "Lỗi server", error: err.message });
+    console.error(err); // In lỗi ra terminal
+    res.status(500).json({ 
+        message: "Error uploading avatar", 
+        error: err.message  // Gửi thông báo lỗi thật về Postman
+    });
   }
 });
 
