@@ -3,7 +3,8 @@ const express = require('express');
 const User = require('../models/User');
 const checkRole = require('../middleware/checkRole');
 const router = express.Router();
-
+const { uploadAvatar } = require('../controllers/userController');
+const authMiddleware = require('../middleware/authMiddleware');
 // API lấy tất cả người dùng - chỉ cho admin
 router.get('/users', checkRole(['admin']), async (req, res) => {
   try {
@@ -25,5 +26,7 @@ router.delete('/users/:id', checkRole(['admin']), async (req, res) => {
     res.status(500).json({ message: 'Lỗi khi xóa tài khoản', error: err.message });
   }
 });
+// routes/userRoutes.js
+router.post('/avatar', authMiddleware, checkRole(['user']), uploadAvatar);
 
 module.exports = router;
