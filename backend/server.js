@@ -10,9 +10,20 @@ const upload = multer();
 console.log('MONGODB_URI:', process.env.MONGODB_URI);
 console.log('ACCESS_TOKEN_SECRET:', process.env.ACCESS_TOKEN_SECRET);
 console.log('CORS_ORIGIN:', process.env.CORS_ORIGIN);
-
-app.use(cors({ origin: 'http://localhost:3000' }));
-app.use(express.json()); 
+const allowedOrigins = [
+  'http://localhost:3000',
+  ' https://group11-project-six.vercel.app/' // Dán link Vercel của bạn vào đây
+];
+app.use(cors({
+  origin: function(origin, callback){
+    if(!origin) return callback(null, true);
+    if(allowedOrigins.indexOf(origin) === -1){
+      const msg = 'Nguồn gốc CORS này không được phép.';
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  }
+}));
 
 // Kết nối MongoDB từ .env
 mongoose
