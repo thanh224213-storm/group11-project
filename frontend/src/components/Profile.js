@@ -1,8 +1,12 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { apiRequest } from '../api';  // Đảm bảo bạn đã import apiRequest từ api.js
+// import { apiRequest } from '../api';  // (Code cũ của bạn)
 import './style.css'; // Liên kết với file CSS
+
+// (SV2) BƯỚC 1: IMPORT HOOKS VÀ ACTION TỪ REDUX
+import { useDispatch } from 'react-redux';
+import { logout } from '../features/auth/authSlice';
 
 const Profile = () => {
   const [user, setUser] = useState({ email: "", role: "", avatar: "" });
@@ -14,7 +18,10 @@ const Profile = () => {
   const [uploadMessage, setUploadMessage] = useState('');
   const navigate = useNavigate();
 
-  // Hàm gọi API để lấy thông tin người dùng
+  // (SV2) BƯỚC 2: KHỞI TẠO DISPATCH
+  const dispatch = useDispatch();
+
+  // (Code cũ của bạn - Giữ nguyên)
   const fetchUserData = async (token) => {
     try {
 feature/forgot-password
@@ -34,16 +41,18 @@ feature/forgot-password
     }
   };
 
+  // (Code cũ của bạn - Giữ nguyên)
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
     if (!token) {
       alert("Vui lòng đăng nhập trước!");
       navigate("/login");
     } else {
-      fetchUserData(token); // Gửi token vào yêu cầu API
+      fetchUserData(token); 
     }
   }, [navigate]);
 
+  // (Code cũ của bạn - Giữ nguyên)
   const handleUpdateProfile = async () => {
     let token = localStorage.getItem("accessToken");
     try {
@@ -69,11 +78,13 @@ feature/forgot-password
     }
   };
 
+  // (Code cũ của bạn - Giữ nguyên)
   const handleFileChange = (e) => {
     setSelectedFile(e.target.files[0]);
-    setUploadMessage(''); // Reset upload message when file is selected
+    setUploadMessage('');
   };
 
+  // (Code cũ của bạn - Giữ nguyên)
   const handleAvatarUpload = async () => {
     if (!selectedFile) return;
     const token = localStorage.getItem("accessToken");
@@ -107,8 +118,15 @@ feature/forgot-password
     }
   };
 
+  // (SV2) BƯỚC 3: TẠO HÀM LOGOUT
+  const handleLogout = () => {
+    dispatch(logout()); // Gọi action Redux để xóa state
+    navigate('/login'); // Điều hướng về trang login
+  };
+
   return (
     <div className="profile-container">
+      {/* (Toàn bộ code JSX cũ của bạn được giữ nguyên) */}
       <h2>Thông Tin Cá Nhân</h2>
       {errorMessage && <div className="alert">{errorMessage}</div>}
 
@@ -122,6 +140,7 @@ feature/forgot-password
       </div>
 
       <div className="profile-details">
+        {/* ... (code hiển thị email, role) ... */}
         <div className="detail">
           <label>Email:</label>
           {isEditing ? (
@@ -130,13 +149,12 @@ feature/forgot-password
             <span>{user.email}</span>
           )}
         </div>
-
         <div className="detail">
           <label>Role:</label>
-          {isEditing && user.role === 'admin' ? (  // Chỉ cho phép admin chỉnh sửa role
+          {isEditing && user.role === 'admin' ? (
             <input type="text" value={role} onChange={(e) => setRole(e.target.value)} />
           ) : (
-            <span>{user.role}</span>  // Nếu không phải admin, chỉ hiển thị role
+            <span>{user.role}</span>
           )}
         </div>
       </div>
@@ -150,14 +168,15 @@ feature/forgot-password
 
       <hr />
       
-      {/* Chỉ hiển thị nút "Quản lý Admin" nếu người dùng có role là admin */}
       {user.role === 'admin' && (
         <button onClick={() => navigate('/admin')} style={{ marginRight: '10px' }}>
           Quản lý Admin
         </button>
       )}
 
-      <button onClick={() => navigate('/logout')} className="logout-btn">Đăng xuất</button>
+      {/* (SV2) BƯỚC 4: SỬA LẠI NÚT ĐĂNG XUẤT */}
+      {/* Thay vì navigate('/logout'), ta gọi hàm handleLogout */}
+      <button onClick={handleLogout} className="logout-btn">Đăng xuất</button>
     </div>
   );
 };

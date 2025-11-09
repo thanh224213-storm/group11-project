@@ -1,36 +1,65 @@
+feature/redux-protected
+import React, { useState, useEffect } from 'react';
+// KHÔNG CẦN 'axios' nữa, vì Redux Thunk (authSlice) sẽ quản lý
+// import axios from 'axios'; 
+
 feature/refresh-token
 import React, { useState } from 'react';
 import axios from 'axios';
+
 import { useNavigate } from 'react-router-dom';
 import './style.css';
+import { useDispatch, useSelector } from 'react-redux'; // Import hook của Redux
+import { loginUser } from '../features/auth/authSlice'; // Import thunk
+
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
+  
+  // KHÔNG DÙNG 'errorMessage' state riêng lẻ nữa, ta sẽ lấy từ Redux
+  // const [errorMessage, setErrorMessage] = useState('');
+  
   const navigate = useNavigate();
+  
+  // (SV2) SỬ DỤNG REDUX HOOKS
+  const dispatch = useDispatch();
+  
+  // Lấy state (loading, error, user) từ store của Redux
+  const { isLoading, error, user } = useSelector((state) => state.auth);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      const response = await axios.post("http://localhost:5000/api/auth/login", { email, password });
-      localStorage.setItem('accessToken', response.data.accessToken);
-      localStorage.setItem('refreshToken', response.data.refreshToken);
-      navigate('/profile');  // Chuyển hướng tới trang hồ sơ người dùng sau khi đăng nhập thành công
-    } catch (err) {
-      // === (ĐÃ SỬA) ===
-      // Đọc thông báo lỗi cụ thể từ server (bao gồm lỗi 429)
-      if (err.response && err.response.data && err.response.data.message) {
-        setErrorMessage(err.response.data.message);
-      } else if (err.response) {
-        // Lỗi server chung
-        setErrorMessage("Sai email hoặc mật khẩu");
-      } else {
-        // Lỗi mạng (server sập)
-        setErrorMessage("Không thể kết nối tới server.");
-      }
-      // === (HẾT SỬA) ===
-    }
+    
+    // (SV2) GỌI REDUX THUNK
+    // Thay vì dùng axios, ta dispatch action 'loginUser'
+    dispatch(loginUser({ email, password }))
+      .unwrap() // .unwrap() giúp bắt lỗi từ createAsyncThunk
+      .then((result) => {
+        // Đăng nhập thành công, 'result' là payload (user, token)
+        // Ta sẽ chuyển hướng dựa trên role
+        if (result.user.role === 'admin') {
+          navigate('/admin');
+        } else {
+          navigate('/profile');
+        }
+      })
+      .catch((err) => {
+        // Lỗi (rejected)
+        // 'err' là payload lỗi (message) từ 'rejectWithValue'
+        // State 'error' của Redux đã tự động được cập nhật
+        console.error('Đăng nhập thất bại:', err);
+      });
   };
+
+  // (SV2) TỰ ĐỘNG CHUYỂN HƯỚNG
+  // Hook này sẽ chạy khi state 'user' (từ Redux) thay đổi
+  useEffect(() => {
+    if (user) {
+      // Nếu user đã đăng nhập, chuyển hướng họ
+      navigate(user.role === 'admin' ? '/admin' : '/profile');
+    }
+  }, [user, navigate]);
+
 
   return (
     <div className="form-container">
@@ -54,8 +83,15 @@ const Login = () => {
             required
           />
         </div>
-        {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
-        <button type="submit">Đăng Nhập</button>
+        
+        {/* (SV2) HIỂN THỊ LỖI TỪ REDUX STATE */}
+        {/* 'error' này chính là message (bao gồm cả lỗi 429) */}
+        {error && <p style={{ color: 'red' }}>{error}</p>}
+        
+        {/* (SV2) VÔ HIỆU HÓA NÚT KHI ĐANG TẢI */}
+        <button type="submit" disabled={isLoading}>
+          {isLoading ? 'Đang tải...' : 'Đăng Nhập'}
+        </button>
       </form>
 
       <div className="links">
