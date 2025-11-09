@@ -24,7 +24,13 @@ const Profile = () => {
   // (Code cũ của bạn - Giữ nguyên)
   const fetchUserData = async (token) => {
     try {
+feature/forgot-password
       const response = await axios.get("http://localhost:5000/api/auth/profile", {
+
+      const response = await apiRequest({
+        method: 'get',
+        url: "http://localhost:5000/api/profile",
+
         headers: { Authorization: `Bearer ${token}` },
       });
       setUser(response.data);
@@ -50,11 +56,20 @@ const Profile = () => {
   const handleUpdateProfile = async () => {
     let token = localStorage.getItem("accessToken");
     try {
+feature/forgot-password
       const response = await axios.put(
         "http://localhost:5000/api/auth/profile",
         { email, role },
         { headers: { Authorization: `Bearer ${token}` } }
       );
+
+      const response = await apiRequest({
+        method: 'put',
+        url: "http://localhost:5000/api/profile",
+        headers: { Authorization: `Bearer ${token}` },
+        data: { email, role },
+      });
+
       setUser(prevUser => ({ ...prevUser, email: email, role: role }));
       alert(response.data.message);
       setIsEditing(false);
@@ -77,14 +92,27 @@ const Profile = () => {
     formData.append('avatar', selectedFile);
 
     try {
+ feature/forgot-password
       const res = await axios.post(
         "http://localhost:5000/api/auth/upload-avatar", 
         formData, 
         { headers: { 'Content-Type': 'multipart/form-data', 'Authorization': `Bearer ${token}` } }
       );
+
+      const res = await apiRequest({
+        method: 'post',
+        url: "http://localhost:5000/api/upload-avatar",
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          'Authorization': `Bearer ${token}`,
+        },
+        data: formData,
+      });
+
+
       setUploadMessage(res.data.message);
       setUser(prevUser => ({ ...prevUser, avatar: res.data.avatarUrl }));
-      setSelectedFile(null);
+      setSelectedFile(null); // Clear file after successful upload
     } catch (err) {
       setUploadMessage('Lỗi khi upload: ' + (err.response?.data?.message || err.message));
     }
