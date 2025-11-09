@@ -7,7 +7,8 @@ import Admin from "./components/Admin";
 import Logout from "./components/Logout";
 import ForgotPassword from "./components/ForgotPassword";
 import ResetPassword from "./components/ResetPassword";
-
+import AdminLogs from './components/AdminLogs'; // <-- Import component mới
+import AdminRoute from './components/AdminRoute'; // <-- Import route bảo vệ
 const App = () => {
   return (
     <Router>
@@ -35,6 +36,19 @@ const App = () => {
 
         {/* Route Reset Mật Khẩu (SỬA DÒNG NÀY) */}
         <Route path="/reset-password/:token" element={<ResetPassword />} />
+        {/* Route Quản lý Admin (cũ) */}
+        <Route path="/admin" element={
+          <AdminRoute>
+            <Admin />
+          </AdminRoute>
+        } />
+
+        {/* (SV2) THÊM ROUTE MỚI CHO LOGS */}
+        <Route path="/admin/logs" element={
+          <AdminRoute>
+            <AdminLogs />
+          </AdminRoute>
+        } />
       </Routes>
     </Router>
   );

@@ -16,7 +16,18 @@ const Login = () => {
       localStorage.setItem('refreshToken', response.data.refreshToken);
       navigate('/profile');  // Chuyển hướng tới trang hồ sơ người dùng sau khi đăng nhập thành công
     } catch (err) {
-      setErrorMessage("Sai email hoặc mật khẩu");
+      // === (ĐÃ SỬA) ===
+      // Đọc thông báo lỗi cụ thể từ server (bao gồm lỗi 429)
+      if (err.response && err.response.data && err.response.data.message) {
+        setErrorMessage(err.response.data.message);
+      } else if (err.response) {
+        // Lỗi server chung
+        setErrorMessage("Sai email hoặc mật khẩu");
+      } else {
+        // Lỗi mạng (server sập)
+        setErrorMessage("Không thể kết nối tới server.");
+      }
+      // === (HẾT SỬA) ===
     }
   };
 
