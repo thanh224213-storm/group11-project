@@ -1,33 +1,34 @@
 const cloudinary = require('cloudinary').v2;
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const multer = require('multer');
-require('dotenv').config();
+require('dotenv').config(); // Đảm bảo dotenv được gọi
+
+// === SỬA BẢO MẬT ===
+// Luôn luôn đọc key từ file .env
+// KHÔNG BAO GIỜ hard-code key vào đây
 cloudinary.config({
-  cloud_name: 'dzxnoc7rx', // ⬅️ ĐIỀN KEY CỦA BẠN
-  api_key: '721446897681497',     // ⬅️ ĐIỀN KEY CỦA BẠN
-  api_secret: '4ys5LioZSfWl980mNwRE_pw544E' // ⬅️ ĐIỀN KEY CỦA BẠN
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
-// Cấu hình Multer để lưu trữ ảnh vào Cloudinary
+// === SỬA LỖI MERGE ===
+// Gộp các params từ các nhánh lại
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
- feature/avatar-upload
-    folder: 'avatars',  // Folder lưu ảnh trong Cloudinary
-    allowed_formats: ['jpg', 'png', 'jpeg'],
-    transformation: [{ width: 500, height: 500, crop: 'limit' }]  // Resize ảnh trước khi upload
-  }
+    folder: 'avatars', // Folder lưu ảnh (từ nhánh avatar-upload)
+    allowed_formats: ['jpg', 'png', 'jpeg'], // Cho phép các định dạng (từ nhánh avatar-upload)
+    
+    // Đặt tên file (từ nhánh refresh-token)
+    // Dùng req.user.userId (từ middleware) sẽ tốt hơn req.userId
+    public_id: (req, file) => `avatar-${req.user?.userId || Date.now()}`,
 
-    folder: 'user-avatars',
-    format: async (req, file) => 'png',
-feature/refresh-token
-    public_id: (req, file) => `avatar-${req.userId || Date.now()}`
-
-    public_id: (req, file) => `avatar-${req.userId || Date.now()}` // Thêm Date.now() để an toàn
-
+    // Tùy chọn: Thêm transformation (từ nhánh avatar-upload)
+    transformation: [{ width: 500, height: 500, crop: 'limit' }]
   },
-
 });
 
 const parser = multer({ storage: storage });
+
 module.exports = { cloudinary, parser };

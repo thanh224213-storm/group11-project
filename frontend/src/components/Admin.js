@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import './style.css';
-import { Link } from 'react-router-dom'; // <-- Bạn đã import đúng
+import { Link } from 'react-router-dom'; 
 
 const Admin = () => {
   const [users, setUsers] = useState([]);
@@ -17,8 +17,9 @@ const Admin = () => {
       return;
     }
 
+    // SỬA URL 1
     axios
-      .get("http://localhost:5000/api/auth/admin", {
+      .get(`${process.env.REACT_APP_API_URL}/api/auth/admin`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((response) => {
@@ -41,7 +42,8 @@ const Admin = () => {
     if (window.confirm("Bạn có chắc chắn muốn xóa người dùng này?")) {
       try {
         const token = localStorage.getItem("accessToken");
-        await axios.delete(`http://localhost:5000/api/auth/users/${userId}`, {
+        // SỬA URL 2
+        await axios.delete(`${process.env.REACT_APP_API_URL}/api/auth/users/${userId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         alert("Xóa người dùng thành công!");
@@ -53,20 +55,15 @@ const Admin = () => {
   };
 
   return (
-    // Bạn có thể đổi 'container' thành 'admin-container' nếu muốn dùng style
+    // ... (phần return JSX giữ nguyên) ...
     <div className="admin-container"> 
       <h2>Trang Quản Lý Admin</h2>
       {error && <div className="alert">{error}</div>}
-
-      {/* === (SV2) THÊM NÚT XEM LOGS VÀO ĐÂY === */}
       <div className="admin-navigation" style={{ marginBottom: '20px' }}>
         <Link to="/admin/logs">
-          {/* Dùng className 'edit-btn' từ file style.css cho đẹp */}
           <button className="edit-btn">Xem Lịch sử Hoạt động (Logs)</button>
         </Link>
       </div>
-      {/* ======================================= */}
-
       <h3>Danh sách Người dùng</h3>
       <table className="admin-table">
         <thead>
@@ -82,7 +79,6 @@ const Admin = () => {
               <td>{user.email}</td>
               <td>{user.role}</td>
               <td>
-                {/* Nên dùng className 'logout-btn' để ra nút màu đỏ */}
                 <button onClick={() => handleDelete(user._id)} className="logout-btn">
                   Xóa
                 </button>

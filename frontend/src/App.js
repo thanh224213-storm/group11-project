@@ -1,4 +1,3 @@
-feature/refresh-token
 import React from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./components/Login";
@@ -10,7 +9,6 @@ import ResetPassword from "./components/ResetPassword";
 import AdminLogs from './components/AdminLogs';
 
 // Import ProtectedRoute (từ Hoạt động 6)
-// (Bạn không cần AdminRoute.js nữa)
 import ProtectedRoute from "./components/ProtectedRoute"; 
 
 const App = () => {
@@ -66,30 +64,13 @@ const App = () => {
           } 
         />
 
-        {/* Lưu ý: Route "/logout" đã bị xóa
-          Vì giờ bạn sẽ dùng Redux:
-          Tạo một nút bấm trong Profile.js và gọi dispatch(logout())
-        */}
+        {/* Lưu ý: Route "/logout" đã bị xóa */}
 
       </Routes>
     </Router>
   );
 };
 
- feature/forgot-password
 export default App;
 
-export default App;
-
-
-import { Router } from "express";
-import ForgotPassword from "./components/ForgotPassword";
-import ResetPassword from "./components/ResetPassword";
-
-<Routes>
-    <Route path="/admin" element={<Admin />} />
-    <Route path="/logout" element={<Logout />} />
-    <Route path="/forgot-password" element={<ForgotPassword />} />
-    <Route path="/reset/:token" element={<ResetPassword />} />
-  </Routes>
-
+// (Toàn bộ code rác bị lặp ở cuối file đã được xóa)

@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-// import { apiRequest } from '../api';  // (Code cũ của bạn)
-import './style.css'; // Liên kết với file CSS
-
-// (SV2) BƯỚC 1: IMPORT HOOKS VÀ ACTION TỪ REDUX
-import { useDispatch } from 'react-redux';
+import './style.css'; 
+import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '../features/auth/authSlice';
 
 const Profile = () => {
+  const { user: reduxUser } = useSelector(state => state.auth);
+  // ... (các state khác) ...
   const [user, setUser] = useState({ email: "", role: "", avatar: "" });
   const [email, setEmail] = useState("");
   const [role, setRole] = useState("");
@@ -17,20 +16,12 @@ const Profile = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [uploadMessage, setUploadMessage] = useState('');
   const navigate = useNavigate();
-
-  // (SV2) BƯỚC 2: KHỞI TẠO DISPATCH
   const dispatch = useDispatch();
 
-  // (Code cũ của bạn - Giữ nguyên)
   const fetchUserData = async (token) => {
     try {
-feature/forgot-password
-      const response = await axios.get("http://localhost:5000/api/auth/profile", {
-
-      const response = await apiRequest({
-        method: 'get',
-        url: "http://localhost:5000/api/profile",
-
+      // SỬA URL 1
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/auth/profile`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setUser(response.data);
@@ -41,7 +32,6 @@ feature/forgot-password
     }
   };
 
-  // (Code cũ của bạn - Giữ nguyên)
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
     if (!token) {
@@ -52,24 +42,15 @@ feature/forgot-password
     }
   }, [navigate]);
 
-  // (Code cũ của bạn - Giữ nguyên)
   const handleUpdateProfile = async () => {
     let token = localStorage.getItem("accessToken");
     try {
-feature/forgot-password
+      // SỬA URL 2
       const response = await axios.put(
-        "http://localhost:5000/api/auth/profile",
+        `${process.env.REACT_APP_API_URL}/api/auth/profile`,
         { email, role },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-
-      const response = await apiRequest({
-        method: 'put',
-        url: "http://localhost:5000/api/profile",
-        headers: { Authorization: `Bearer ${token}` },
-        data: { email, role },
-      });
-
       setUser(prevUser => ({ ...prevUser, email: email, role: role }));
       alert(response.data.message);
       setIsEditing(false);
@@ -78,13 +59,12 @@ feature/forgot-password
     }
   };
 
-  // (Code cũ của bạn - Giữ nguyên)
+  // ... (handleFileChange) ...
   const handleFileChange = (e) => {
     setSelectedFile(e.target.files[0]);
     setUploadMessage('');
   };
 
-  // (Code cũ của bạn - Giữ nguyên)
   const handleAvatarUpload = async () => {
     if (!selectedFile) return;
     const token = localStorage.getItem("accessToken");
@@ -92,44 +72,32 @@ feature/forgot-password
     formData.append('avatar', selectedFile);
 
     try {
- feature/forgot-password
+      // SỬA URL 3
       const res = await axios.post(
-        "http://localhost:5000/api/auth/upload-avatar", 
+        `${process.env.REACT_APP_API_URL}/api/auth/upload-avatar`, 
         formData, 
         { headers: { 'Content-Type': 'multipart/form-data', 'Authorization': `Bearer ${token}` } }
       );
-
-      const res = await apiRequest({
-        method: 'post',
-        url: "http://localhost:5000/api/upload-avatar",
-        headers: {
-          'Content-Type': 'multipart/form-data',
-          'Authorization': `Bearer ${token}`,
-        },
-        data: formData,
-      });
-
-
       setUploadMessage(res.data.message);
       setUser(prevUser => ({ ...prevUser, avatar: res.data.avatarUrl }));
-      setSelectedFile(null); // Clear file after successful upload
+      setSelectedFile(null);
     } catch (err) {
       setUploadMessage('Lỗi khi upload: ' + (err.response?.data?.message || err.message));
     }
   };
 
-  // (SV2) BƯỚC 3: TẠO HÀM LOGOUT
+  // ... (handleLogout và phần return giữ nguyên) ...
+  // (Toàn bộ phần JSX giữ nguyên)
   const handleLogout = () => {
-    dispatch(logout()); // Gọi action Redux để xóa state
-    navigate('/login'); // Điều hướng về trang login
+    dispatch(logout()); 
+    navigate('/login'); 
   };
+  const isAdmin = reduxUser && reduxUser.role === 'admin';
 
   return (
     <div className="profile-container">
-      {/* (Toàn bộ code JSX cũ của bạn được giữ nguyên) */}
       <h2>Thông Tin Cá Nhân</h2>
-      {errorMessage && <div className="alert">{errorMessage}</div>}
-
+      {errorMessage && <p className="error-message">{errorMessage}</p>}
       <div className="profile-avatar">
         {user.avatar && (
           <img src={user.avatar} alt="Avatar" />
@@ -138,9 +106,7 @@ feature/forgot-password
         <button onClick={handleAvatarUpload} disabled={!selectedFile}>Upload Avatar</button>
         {uploadMessage && <p>{uploadMessage}</p>}
       </div>
-
       <div className="profile-details">
-        {/* ... (code hiển thị email, role) ... */}
         <div className="detail">
           <label>Email:</label>
           {isEditing ? (
@@ -151,31 +117,25 @@ feature/forgot-password
         </div>
         <div className="detail">
           <label>Role:</label>
-          {isEditing && user.role === 'admin' ? (
+          {isEditing && isAdmin ? ( 
             <input type="text" value={role} onChange={(e) => setRole(e.target.value)} />
           ) : (
             <span>{user.role}</span>
           )}
         </div>
       </div>
-
       <button onClick={() => setIsEditing(!isEditing)} className="edit-btn">
         {isEditing ? "Hủy" : "Chỉnh sửa"}
       </button>
       {isEditing && (
         <button onClick={handleUpdateProfile}>Cập nhật</button>
       )}
-
       <hr />
-      
-      {user.role === 'admin' && (
+      {isAdmin && (
         <button onClick={() => navigate('/admin')} style={{ marginRight: '10px' }}>
           Quản lý Admin
         </button>
       )}
-
-      {/* (SV2) BƯỚC 4: SỬA LẠI NÚT ĐĂNG XUẤT */}
-      {/* Thay vì navigate('/logout'), ta gọi hàm handleLogout */}
       <button onClick={handleLogout} className="logout-btn">Đăng xuất</button>
     </div>
   );
