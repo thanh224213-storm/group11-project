@@ -1,3 +1,4 @@
+feature/refresh-token
 import React from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./components/Login";
@@ -54,4 +55,20 @@ const App = () => {
   );
 };
 
+ feature/forgot-password
 export default App;
+
+export default App;
+
+
+import { Router } from "express";
+import ForgotPassword from "./components/ForgotPassword";
+import ResetPassword from "./components/ResetPassword";
+
+<Routes>
+    <Route path="/admin" element={<Admin />} />
+    <Route path="/logout" element={<Logout />} />
+    <Route path="/forgot-password" element={<ForgotPassword />} />
+    <Route path="/reset/:token" element={<ResetPassword />} />
+  </Routes>
+
