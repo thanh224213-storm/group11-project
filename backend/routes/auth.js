@@ -16,7 +16,13 @@ const express = require("express");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 const router = express.Router();
+ feature/log-rate-limit
+const logActivity = require('../utils/logger');
+const { loginLimiter } = require('../middleware/rateLimiter');
+const Log = require('../models/Log');
+
  feature/forgot-password
+
 // const nodemailer = require('nodemailer'); // XÓA DÒNG NÀY
 
 
@@ -87,7 +93,7 @@ router.post("/signup", async (req, res) => {
 
 // --- API Đăng nhập (Login) ---
 // (Giữ nguyên)
-router.post("/login", async (req, res) => {
+router.post("/login",loginLimiter, async (req, res) => {
   try {
     const { email, password } = req.body;
     const user = await User.findOne({ email });
@@ -114,7 +120,7 @@ router.post("/login", async (req, res) => {
       user: user._id,
       expiresAt: expiresAt
     }).save();
-
+await logActivity(user._id, 'login_success');
     res.status(200).json({ accessToken, refreshToken });
   } catch (err) {
     res.status(500).json({ message: "Có lỗi xảy ra", error: err.message });
@@ -148,6 +154,7 @@ router.put("/profile", verifyAccessToken, async (req, res) => {
       { new: true } 
     );
     if (!updatedUser) return res.status(404).json({ message: "Người dùng không tồn tại" });
+    await logActivity(userId, 'update_profile');
     res.status(200).json({ message: "Cập nhật profile thành công!", user: updatedUser });
   } catch (err) {
     res.status(500).json({ message: "Lỗi server", error: err.message });
@@ -457,7 +464,20 @@ router.get("/admin", verifyAdmin, async (req, res) => {
     res.status(500).json({ message: "Không thể lấy danh sách người dùng", error: err.message });
   }
 });
+router.get("/logs", verifyAdmin, async (req, res) => {
+    // (Giả sử bạn đã có middleware 'verifyAdmin' từ các hoạt động trước)
+    try {
+        const logs = await Log.find()
+            .populate('user', 'email') // Lấy thông tin email của user
+            .sort({ timestamp: -1 })  // Sắp xếp mới nhất lên đầu
+            .limit(100);              // Giới hạn 100 log gần nhất
 
+        res.status(200).json(logs);
+
+    } catch (err) {
+        res.status(500).json({ message: "Lỗi server", error: err.message });
+    }
+});
 // --- Xuất router (Chỉ 1 lần ở cuối file) ---
 module.exports = router;
  feature/forgot-password
