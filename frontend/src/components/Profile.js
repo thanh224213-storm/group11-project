@@ -17,7 +17,7 @@ const Profile = () => {
   // Hàm gọi API để lấy thông tin người dùng
   const fetchUserData = async (token) => {
     try {
-      const response = await axios.get("http://localhost:5000/api/profile", {
+      const response = await axios.get("http://localhost:5000/api/auth/profile", {
         headers: { Authorization: `Bearer ${token}` },
       });
       setUser(response.data);
@@ -42,7 +42,7 @@ const Profile = () => {
     let token = localStorage.getItem("accessToken");
     try {
       const response = await axios.put(
-        "http://localhost:5000/api/profile",
+        "http://localhost:5000/api/auth/profile",
         { email, role },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -67,7 +67,7 @@ const Profile = () => {
 
     try {
       const res = await axios.post(
-        "http://localhost:5000/api/upload-avatar", 
+        "http://localhost:5000/api/auth/upload-avatar", 
         formData, 
         { headers: { 'Content-Type': 'multipart/form-data', 'Authorization': `Bearer ${token}` } }
       );

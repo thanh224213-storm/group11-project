@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import './style.css';
+import './style.css'; // Đã import style.css
+
 const ResetPassword = () => {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -20,18 +21,24 @@ const ResetPassword = () => {
     setMessage('');
 
     try {
-      const res = await axios.post('http://localhost:5000/api/reset-password', { 
-        token, 
+      // GỌI API (Đảm bảo URL này đúng với backend của bạn)
+      const res = await axios.post(`http://localhost:5000/api/auth/reset-password/${token}`, { 
         newPassword 
       });
       setMessage(res.data.message);
+      // Tùy chọn: Tự động chuyển về trang đăng nhập sau 3s
+      setTimeout(() => {
+        navigate('/login');
+      }, 3000);
+
     } catch (err) {
       setError(err.response?.data?.message || 'Lỗi server');
     }
   };
 
   return (
-    <div>
+    // 1. ÁP DỤNG .form-container
+    <div className="form-container">
       <h2>Đặt Lại Mật Khẩu Mới</h2>
       <form onSubmit={handleSubmit}>
         <input
@@ -50,12 +57,19 @@ const ResetPassword = () => {
         />
         <button type="submit">Đặt lại mật khẩu</button>
       </form>
-      {message && <p style={{ color: 'green' }}>{message}</p>}
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      <Link to="/login" style={{ marginTop: '10px' }}>
-        Quay lại Đăng nhập
-      </Link>
+
+      {/* 2. ÁP DỤNG class cho message và error */}
+      {message && <p className="success-message">{message}</p>}
+      {error && <p className="error-message">{error}</p>}
+
+      {/* 3. ÁP DỤNG .links cho Link */}
+      <div className="links">
+        <Link to="/login">
+          Quay lại Đăng nhập
+        </Link>
+      </div>
     </div>
   );
 };
+
 export default ResetPassword;

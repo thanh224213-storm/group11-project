@@ -7,6 +7,8 @@
     "start": "node server.js"
   },
   "dependencies": {
+    "@sendgrid/mail": "^8.1.6",
+    "@sendinblue/client": "^3.3.1",
     "bcryptjs": "^2.4.3",
     "cloudinary": "^1.41.3",
     "cors": "^2.8.5",
@@ -17,7 +19,8 @@
     "mongoose": "^8.19.3",
     "multer": "^1.4.5-lts.1",
     "multer-storage-cloudinary": "^4.0.0",
-    "nodemailer": "^6.9.13",
-    "sharp": "^0.34.5"
+    "nodemailer": "^6.10.1",
+    "sharp": "^0.34.5",
+    "sib-api-v3-sdk": "^8.5.0"
   }
 }
