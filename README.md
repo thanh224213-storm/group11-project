@@ -1,123 +1,124 @@
-Dự án này được xây dựng trong Buổi 4 – Thực hành nhóm với mục tiêu giúp sinh viên hiểu và thực hành kết nối toàn bộ quy trình phát triển web fullstack gồm:
+Group 11 Project (group11-project)
+Ứng dụng quản lý người dùng MERN stack đầy đủ, bao gồm xác thực, phân quyền, và các tính năng nâng cao.
 
-Backend: Node.js + Express
-Frontend: React
-Database: MongoDB (Atlas)
-Version Control: Git + GitHub
-Ứng dụng cho phép quản lý người dùng (User Management) gồm các chức năng CRUD:
-Xem danh sách người dùng
-Thêm mới người dùng
-Sửa thông tin người dùng
-Xóa người dùng
+Backend: Node.js + Express + Mongoose
 
-Công nghệ sử dụng
-Thành phần	Công nghệ	Ghi chú
-Backend	Node.js + Express	Xây dựng REST API
-Frontend	React + Axios	Giao diện web kết nối API
-Database	MongoDB Atlas	Lưu trữ dữ liệu người dùng
-Công cụ	Git, VS Code, Postman	Quản lý code và test API
-⚙️ Cách chạy dự án
-1️⃣ Clone repository
-git clone https://github.com/thanh224213-storm/group11-project
-cd group11-project
+Frontend: React + Redux Toolkit + Axios
 
-2️⃣ Cài đặt Backend
+Database: MongoDB Atlas
+
+1. Chuẩn bị
+Cài đặt Node.js LTS và Git.
+
+Tạo cluster MongoDB Atlas, lấy chuỗi kết nối (connection string).
+
+Tạo tài khoản Cloudinary (lấy Cloud Name, API Key, API Secret).
+
+Tạo tài khoản dịch vụ Email (ví dụ: Brevo, SendGrid, hoặc Gmail App Password) để lấy API Key/Password.
+
+2. Chạy Backend
+Mở terminal, đi đến thư mục backend:
+
+Bash
+
 cd backend
+Cài đặt các gói:
+
+Bash
+
 npm install
+Tạo file .env ở thư mục backend và điền các biến:
 
+Đoạn mã
 
-Tạo file .env:
+# Database MongoDB
+MONGODB_URI=<chuỗi-kết-nối-MongoDB-Atlas-của-bạn>
 
+# Server Port (Backend chạy ở cổng 5000)
 PORT=5000
 
-Chạy server:
-npm run dev
+# JWT Secrets
+ACCESS_TOKEN_SECRET=<chuỗi-bí-mật-cho-access-token>
+REFRESH_TOKEN_SECRET=<chuỗi-bí-mật-cho-refresh-token>
 
+# Email Service (Chọn MỘT trong các cách)
 
-3️⃣ Cài đặt Frontend
-cd ../frontend
-npm install
+# Cách 1: Dùng Brevo (Giống bạn đã làm)
+BREVO_API_KEY=<key-v3-của-brevo>
+BREVO_SENDER_EMAIL=<email-đã-xác-thực-trên-brevo>
+
+# Cách 2: Dùng Gmail (Nếu có App Password)
+EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=587
+EMAIL_USER=<gmail-dùng-gửi-mail>
+EMAIL_PASSWORD=<app-password-16-ký-tự-của-gmail>
+
+# Cloudinary (Upload Avatar)
+CLOUDINARY_CLOUD_NAME=<tên-cloud-của-bạn>
+CLOUDINARY_API_KEY=<api-key-của-bạn>
+CLOUDINARY_API_SECRET=<api-secret-của-bạn>
+Khởi động server:
+
+Bash
+
 npm start
+Server sẽ lắng nghe tại http://localhost:5000.
 
-Frontend sẽ chạy ở http://localhost:5000
+3. Chạy Frontend
+Mở một terminal mới, đi đến thư mục frontend:
 
-🔗 Cấu trúc dự án
-project/
-│
-├── backend/
-│   ├── server.js
-│   ├── routes/
-│   │   └── user.js
-│   ├── controllers/
-│   │   └── userController.js
-│   ├── models/
-│   │   └── User.js
-│   └── .env
-│
-├── frontend/
-│   ├── src/
-│   │   ├── components/
-│   │   │   ├── UserList.jsx
-│   │   │   └── AddUser.jsx
-│   │   └── App.js
-│   └── package.json
-│
-└── README.md
+Bash
 
-👥 Phân công công việc
-Thành viên	Vai trò	Nhiệm vụ chính
-Quách Phú Thành	Backend Developer	Cài đặt Node.js, tạo REST API (GET, POST, PUT, DELETE), kết nối MongoDB
-Trương Thành Đô	Frontend Developer	Tạo giao diện React, gọi API bằng Axios, quản lý state & validation
-Lê Hải Đăng	Database Engineer	Cấu hình MongoDB Atlas, tạo Model, kiểm thử lưu trữ dữ liệu
-🧪 Test & Sản phẩm nộp
-Hoạt động	Sản phẩm
-Hoạt động 1	Ảnh VS Code + README_<tên>.md mô tả vai trò
-Hoạt động 2	File server.js, ảnh cấu trúc backend
-Hoạt động 3	Ảnh test API GET/POST bằng Postman
-Hoạt động 4	Ảnh giao diện React hiển thị & thêm user
-Hoạt động 5	Ảnh dữ liệu MongoDB Atlas
-Hoạt động 6	Ảnh giao diện hiển thị dữ liệu từ MongoDB
-Hoạt động 7	Ảnh test PUT/DELETE + giao diện có nút Sửa/Xóa
-Hoạt động 8	Ảnh giao diện có validation form
-Hoạt động 9	Ảnh xung đột merge & squash commit
-Hoạt động 10	Link PR merge cuối cùng vào main
-🧭 Quy trình làm việc nhóm (Git Workflow)
+cd frontend
+Cài đặt các gói:
 
-Mỗi thành viên tạo nhánh riêng:
+Bash
 
-git checkout -b backend
-git push origin backend
+npm install
+(Không bắt buộc, nhưng nên có) Tạo file .env ở thư mục frontend:
 
+Đoạn mã
 
-(Tương tự cho frontend & database)
+# Trỏ đến địa chỉ server backend (đang chạy ở cổng 5000)
+REACT_APP_API_URL=http://localhost:5000
 
-Commit và push code theo vai trò.
+# Đặt port cho React (Frontend chạy ở cổng 3000)
+PORT=3000
+Khởi động ứng dụng:
 
-Tạo Pull Request (PR) trên GitHub để merge vào develop hoặc main.
+Bash
 
-Khi có xung đột:
+npm start
+Ứng dụng sẽ tự động mở tại http://localhost:3000.
 
-Mở file xung đột.
+4. Tính năng chính
+Đăng ký / Đăng nhập (JWT & Refresh Token).
 
-Giữ nội dung cần thiết và commit lại.
+Quản lý State tập trung (Redux Toolkit).
 
-Dùng git rebase -i để squash commit trước khi merge.
+Bảo vệ Route (Protected Routes) cho /profile, /admin.
 
-💬 Ghi chú thêm
+Quên mật khẩu qua email (Dùng Brevo/Nodemailer).
 
-Frontend gọi API qua Axios:
+Upload Avatar (Lên Cloudinary).
 
-axios.get("http://localhost:5000/users");
-axios.post("http://localhost:5000/users", newUser);
-axios.put(`http://localhost:5000/users/${id}`, updatedUser);
-axios.delete(`http://localhost:5000/users/${id}`);
+Ghi log hoạt động của user (Xem ở trang Admin).
 
+Giới hạn đăng nhập (Rate Limiting) chống brute force.
 
-API Backend (ví dụ trong routes/user.js):
+Phân quyền (Admin có thể xem/xóa user, xem logs).
 
-router.get('/users', userController.getUsers);
-router.post('/users', userController.createUser);
-router.put('/users/:id', userController.updateUser);
-router.delete('/users/:id', userController.deleteUser);
+5. Deploy (Tùy chọn)
+Backend: Deploy lên Render hoặc Railway.
 
-Link repo: https://github.com/thanh224213-storm/group11-project
+Trỏ đến thư mục backend.
+
+Đặt các biến môi trường (Environment Variables) giống hệt file .env ở Bước 2.
+
+Frontend: Deploy lên Vercel hoặc Netlify.
+
+Trỏ đến thư mục frontend.
+
+Thêm biến môi trường REACT_APP_API_URL trỏ tới URL của backend (sau khi đã deploy).
+
+Database: Sử dụng MONGO_URI của MongoDB Atlas cho cả môi trường local và deploy.
