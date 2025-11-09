@@ -1,7 +1,15 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+ feature/refresh-token
 import { useParams, useNavigate, Link } from 'react-router-dom';
+ feature/forgot-password
 import './style.css'; // Đã import style.css
+
+import './style.css';
+
+import { useParams, useNavigate } from 'react-router-dom';
+
+
 
 const ResetPassword = () => {
   const [newPassword, setNewPassword] = useState('');
@@ -57,6 +65,7 @@ const ResetPassword = () => {
         />
         <button type="submit">Đặt lại mật khẩu</button>
       </form>
+feature/forgot-password
 
       {/* 2. ÁP DỤNG class cho message và error */}
       {message && <p className="success-message">{message}</p>}
@@ -68,6 +77,18 @@ const ResetPassword = () => {
           Quay lại Đăng nhập
         </Link>
       </div>
+
+      {message && <p style={{ color: 'green' }}>{message}</p>}
+      {error && <p style={{ color: 'red' }}>{error}</p>}
+feature/refresh-token
+      <Link to="/login" style={{ marginTop: '10px' }}>
+        Quay lại Đăng nhập
+      </Link>
+
+      <button onClick={() => navigate('/login')} style={{ marginTop: '10px' }}>
+        Quay lại Đăng nhập
+      </button>
+
     </div>
   );
 };
