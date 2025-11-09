@@ -34,12 +34,15 @@ const App = () => {
         {/* Route Quên Mật Khẩu */}
         <Route path="/forgot-password" element={<ForgotPassword />} />
 
-        {/* Route Reset Mật Khẩu */}
-        <Route path="/reset/:token" element={<ResetPassword />} />
+        {/* Route Reset Mật Khẩu (SỬA DÒNG NÀY) */}
+        <Route path="/reset-password/:token" element={<ResetPassword />} />
       </Routes>
     </Router>
   );
 };
+
+ feature/forgot-password
+export default App;
 
 export default App;
 
@@ -54,3 +57,4 @@ import ResetPassword from "./components/ResetPassword";
     <Route path="/forgot-password" element={<ForgotPassword />} />
     <Route path="/reset/:token" element={<ResetPassword />} />
   </Routes>
+

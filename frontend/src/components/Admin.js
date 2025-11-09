@@ -17,7 +17,7 @@ const Admin = () => {
 
     // Gửi yêu cầu GET để lấy danh sách người dùng, kèm theo Authorization header
     axios
-      .get("http://localhost:5000/api/admin", {
+      .get("http://localhost:5000/api/auth/admin", {
         headers: { Authorization: `Bearer ${token}` }, // Gửi token vào header
       })
       .then((response) => {
@@ -40,7 +40,7 @@ const Admin = () => {
     if (window.confirm("Bạn có chắc chắn muốn xóa người dùng này?")) {
       try {
         const token = localStorage.getItem("accessToken"); // Đảm bảo sử dụng đúng accessToken
-        await axios.delete(`http://localhost:5000/api/users/${userId}`, {
+        await axios.delete(`http://localhost:5000/api/auth/users/${userId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         alert("Xóa người dùng thành công!");

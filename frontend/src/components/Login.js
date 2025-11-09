@@ -12,7 +12,7 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post("http://localhost:5000/api/login", { email, password });
+      const response = await axios.post("http://localhost:5000/api/auth/login", { email, password });
       localStorage.setItem('accessToken', response.data.accessToken);
       localStorage.setItem('refreshToken', response.data.refreshToken);
       navigate('/profile');  // Chuyển hướng tới trang hồ sơ người dùng sau khi đăng nhập thành công

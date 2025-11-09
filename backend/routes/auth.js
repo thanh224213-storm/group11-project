@@ -1,4 +1,9 @@
+feature/forgot-password
+// routes/auth.js (ĐÃ SỬA)
+
+
 feature/refresh-token
+
 const express = require("express");
 const bcrypt = require("bcryptjs");
 
@@ -7,20 +12,26 @@ const { parser } = require('../config/cloudinary');
 router.post("/upload-avatar", parser.single('avatar'), async (req, res) => {
 // CÁC IMPORT CỦA BẠN (giả sử đã có)
 const express = require("express");
- main
+
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 const router = express.Router();
+ feature/forgot-password
+// const nodemailer = require('nodemailer'); // XÓA DÒNG NÀY
+
 
  feature/refresh-token
+
 // --- Import cho Hoạt động 1 (Refresh Token) ---
 const RefreshToken = require('../models/RefreshToken');
 const verifyAccessToken = require('../middleware/authMiddleware');
-
+const authController = require('../controllers/authController');
 // --- Import cho Hoạt động 4 (Quên Mật khẩu, Avatar) ---
 const crypto = require('crypto');
 const { parser } = require('../config/cloudinary');
 
+// SỬA: Import hàm sendEmail
+const sendEmail = require('../utils/sendEmail');
 
 // --- Middleware xác thực Admin ---
 const verifyAdmin = (req, res, next) => {
@@ -38,7 +49,7 @@ const nodemailer = require('nodemailer');
 // ===========================================
 const verifyAdmin = (req, res, next) => {
 
- main
+
   const token = req.header("Authorization")?.replace("Bearer ", "");
   if (!token) {
     return res.status(401).json({ message: "Không có quyền truy cập" });
@@ -49,13 +60,14 @@ feature/refresh-token
     if (decoded.role !== "admin") {
       return res.status(403).json({ message: "Không có quyền truy cập" });
     }
-    req.user = decoded; // Lưu thông tin user vào request
-    next(); // Chuyển tiếp tới handler tiếp theo
+    req.user = decoded;
+    next();
   } catch (err) {
     return res.status(401).json({ message: "Token không hợp lệ hoặc đã hết hạn" });
   }
 };
 // --- API Đăng ký (Signup) ---
+// (Giữ nguyên)
 router.post("/signup", async (req, res) => {
   const { email, password, role } = req.body;
   try {
@@ -67,60 +79,52 @@ router.post("/signup", async (req, res) => {
     const newUser = new User({ email, password, role });
     await newUser.save();
     
-    // (Không cần tạo token ở đây, bắt user đăng nhập)
     res.status(201).json({ message: "Đăng ký thành công!" });
   } catch (err) {
     res.status(500).json({ message: "Có lỗi xảy ra", error: err.message });
   }
 });
 
-// --- API Đăng nhập (Login) - CẬP NHẬT CHO HĐ 1 ---
 // --- API Đăng nhập (Login) ---
+// (Giữ nguyên)
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
     const user = await User.findOne({ email });
     if (!user) return res.status(400).json({ message: "Email không tồn tại" });
 
-    // Kiểm tra mật khẩu
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(400).json({ message: "Sai mật khẩu" });
 
-    // Tạo Access Token
     const accessToken = jwt.sign(
       { userId: user._id, role: user.role },
       process.env.ACCESS_TOKEN_SECRET,
-      { expiresIn: "15m" } // 15 phút
+      { expiresIn: "15m" }
     );
     
-    // Tạo Refresh Token
     const refreshToken = jwt.sign(
       { userId: user._id, role: user.role },
       process.env.REFRESH_TOKEN_SECRET,
-      { expiresIn: "7d" } // 7 ngày
+      { expiresIn: "7d" }
     );
 
-    // Lưu Refresh Token vào cơ sở dữ liệu
-    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 ngày
+    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
     await new RefreshToken({
       token: refreshToken,
       user: user._id,
       expiresAt: expiresAt
     }).save();
 
-    // Trả về Access Token và Refresh Token
     res.status(200).json({ accessToken, refreshToken });
   } catch (err) {
     res.status(500).json({ message: "Có lỗi xảy ra", error: err.message });
   }
 });
 
-
-// --- API Lấy Profile - CẬP NHẬT CHO HĐ 1 ---
+// --- API Lấy Profile ---
+// (Giữ nguyên)
 router.get("/profile", verifyAccessToken, async (req, res) => {
-    //                    ⬆️ DÙNG MIDDLEWARE MỚI
   try {
-    // Nhờ middleware, req.user đã có thông tin
     const user = await User.findById(req.user.userId); 
     if (!user) {
       return res.status(404).json({ message: "Người dùng không tồn tại" });
@@ -131,9 +135,9 @@ router.get("/profile", verifyAccessToken, async (req, res) => {
   }
 });
 
-// --- API Cập nhật Profile - CẬP NHẬT CHO HĐ 1 ---
+// --- API Cập nhật Profile ---
+// (Giữ nguyên)
 router.put("/profile", verifyAccessToken, async (req, res) => {
-    //                   ⬆️ DÙNG MIDDLEWARE MỚI
   try {
     const userId = req.user.userId;
     const { email, role } = req.body;
@@ -150,9 +154,9 @@ router.put("/profile", verifyAccessToken, async (req, res) => {
   }
 });
 
-// --- API Admin: Xóa User - CẬP NHẬT CHO HĐ 1 ---
+// --- API Admin: Xóa User ---
+// (Giữ nguyên)
 router.delete("/users/:id", verifyAdmin, async (req, res) => {
-    //                     ⬆️ DÙNG MIDDLEWARE MỚI (của admin)
   try {
     const userId = req.params.id;
     const user = await User.findByIdAndDelete(userId);
@@ -202,12 +206,17 @@ router.delete("/users/:id", verifyAdmin, async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: "Không tìm thấy người dùng" });
     }
- main
+ 
     res.status(200).json({ message: "Xóa tài khoản thành công" });
   } catch (err) {
     res.status(500).json({ message: "Lỗi khi xóa tài khoản", error: err.message });
   }
 });
+
+ feature/forgot-password
+// --- API Admin: Lấy tất cả User ---
+// (Giữ nguyên)
+router.get("/users", verifyAdmin, async (req, res) => {
 
  feature/refresh-token
 // --- API Admin: Lấy tất cả User - CẬP NHẬT CHO HĐ 1 ---
@@ -215,7 +224,7 @@ router.get("/users", verifyAdmin, async (req, res) => {
     //                ⬆️ DÙNG MIDDLEWARE MỚI (của admin)
 
 router.get("/users", verifyAdmin, async (req, res) => {
- main
+ 
   try {
     const users = await User.find();
     res.status(200).json(users);
@@ -223,6 +232,39 @@ router.get("/users", verifyAdmin, async (req, res) => {
     res.status(500).json({ message: "Không thể lấy danh sách người dùng", error: err.message });
   }
 });
+
+ feature/forgot-password
+// --- API Quên Mật Khẩu (ĐÃ SỬA) ---
+router.post('/forgot-password', async (req, res) => {
+  const { email } = req.body;
+  try {
+    const user = await User.findOne({ email });
+    // Vẫn trả về 200 để bảo mật
+    if (!user) return res.status(200).json({ message: "Nếu email tồn tại, link reset đã được gửi." });
+
+    // Sinh token
+    const resetToken = crypto.randomBytes(20).toString('hex');
+    user.resetPasswordToken = resetToken;
+    user.resetPasswordExpires = Date.now() + 3600000; // 1 giờ
+    await user.save();
+
+    // Gửi email với link reset mật khẩu
+    const resetLink = `http://localhost:3000/reset-password/${resetToken}`;
+    
+    // SỬA: Dùng hàm sendEmail
+    const message = `
+        <h1>Yêu cầu reset mật khẩu</h1>
+        <p>Click vào link dưới đây để đặt lại mật khẩu của bạn (hiệu lực 1 giờ):</p>
+        <a href="${resetLink}" target="_blank">${resetLink}</a>
+    `;
+
+    await sendEmail({
+      email: user.email,
+      subject: 'Reset Password',
+      html: message,
+    });
+
+    res.status(200).json({ message: 'Email đã được gửi! Vui lòng kiểm tra email của bạn.' });
 
 feature/refresh-token
 // --- API Quên Mật Khẩu (Test Mode) ---
@@ -236,7 +278,7 @@ feature/refresh-token
 // ===========================================
 // ROUTES (Code Quên mật khẩu của bạn)
 // ===========================================
-main
+
 router.post("/forgot-password", async (req, res) => {
   const { email } = req.body;
   try {
@@ -253,7 +295,7 @@ router.post("/forgot-password", async (req, res) => {
     const token = crypto.randomBytes(20).toString('hex');
 
     // Tìm và cập nhật user (Cần nhánh database-auth)
- main
+
     user.resetPasswordToken = token;
     user.resetPasswordExpires = Date.now() + 3600000; // 1 giờ
     await user.save();
@@ -261,13 +303,13 @@ router.post("/forgot-password", async (req, res) => {
  feature/refresh-token
 
     // IN LINK RA TERMINAL (TEST MODE)
- main
+
     console.log('====================================================');
     console.log('RESET URL (TESTING MODE):');
     console.log(`http://localhost:3000/reset/${token}`);
     console.log('====================================================');
 
-    res.status(200).json({ message: "Email đã được gửi (nếu tồn tại)." });
+
   } catch (err) {
     res.status(500).json({ message: "Lỗi server", error: err.message });
   }
@@ -275,18 +317,34 @@ router.post("/forgot-password", async (req, res) => {
 
 feature/refresh-token
 // --- API Đặt lại Mật khẩu ---
+feature/forgot-password
+// (Giữ nguyên)
+router.post('/reset-password/:token', async (req, res) => {
+  const { token } = req.params;
+  const { newPassword } = req.body;
+
+
 
 //===========================================
 // API: /reset-password (POST)
 //===========================================
- main
+ 
 router.post("/reset-password", async (req, res) => {
   const { token, newPassword } = req.body;
+
   try {
     const user = await User.findOne({
       resetPasswordToken: token,
       resetPasswordExpires: { $gt: Date.now() }
     });
+ feature/forgot-password
+
+    if (!user) {
+      return res.status(400).json({ message: 'Token không hợp lệ hoặc đã hết hạn.' });
+    }
+
+    user.password = newPassword; // Hook pre-save sẽ hash mật khẩu
+
 feature/refresh-token
     if (!user) return res.status(400).json({ message: "Token không hợp lệ hoặc đã hết hạn." });
     
@@ -297,27 +355,32 @@ feature/refresh-token
     }
 
     // Mật khẩu mới sẽ được hash tự động bởi hook pre('save') trong User.js
- main
+
     user.password = newPassword; 
+
     user.resetPasswordToken = undefined;
     user.resetPasswordExpires = undefined;
     await user.save();
 
+ feature/forgot-password
+    res.status(200).json({ message: 'Cập nhật mật khẩu thành công!' });
+
     res.status(200).json({ message: "Cập nhật mật khẩu thành công!" });
  feature/refresh-token
+
   } catch (err) {
-    res.status(500).json({ message: "Lỗi server", error: err.message });
+    res.status(500).json({ message: 'Lỗi server', error: err.message });
   }
 });
 
-// --- API Upload Avatar - CẬP NHẬT CHO HĐ 1 ---
+// --- API Upload Avatar ---
+// (Giữ nguyên)
 router.post("/upload-avatar", verifyAccessToken, parser.single('avatar'), async (req, res) => {
-    //                        ⬆️ DÙNG MIDDLEWARE MỚI
   try {
     if (!req.file) return res.status(400).json({ message: "Không có file nào được tải lên." });
     
     const avatarUrl = req.file.path;
-    req.userId = req.user.userId; // Lấy userId từ middleware
+    req.userId = req.user.userId;
     
     const updatedUser = await User.findByIdAndUpdate(
       req.userId, { avatar: avatarUrl }, { new: true }
@@ -330,15 +393,19 @@ router.post("/upload-avatar", verifyAccessToken, parser.single('avatar'), async 
     });
 
 
- main
+ 
   } catch (err) {
-    console.error(err); // In lỗi ra terminal
+    console.error(err);
     res.status(500).json({ 
         message: "Error uploading avatar", 
-        error: err.message  // Gửi thông báo lỗi thật về Postman
+        error: err.message
     });
   }
 });
+
+feature/forgot-password
+// --- API Refresh Token (SỬA: Bỏ /auth) ---
+router.post("/refresh", async (req, res) => {
 
 feature/refresh-token
 // ==========================================================
@@ -347,6 +414,7 @@ feature/refresh-token
 
 // --- (SV1) Thêm API MỚI /auth/refresh ---
 router.post("/auth/refresh", async (req, res) => {
+
   const { refreshToken } = req.body;
   if (!refreshToken) return res.status(401).json({ message: "Không có Refresh Token" });
 
@@ -369,17 +437,18 @@ router.post("/auth/refresh", async (req, res) => {
 });
 
 
-// --- (SV1) Thêm API MỚI /auth/logout ---
-router.post("/auth/logout", async (req, res) => {
+// --- API Logout (SỬA: Bỏ /auth) ---
+router.post("/logout", async (req, res) => {
   const { refreshToken } = req.body;
   try {
-    // Xóa Refresh Token khỏi DB
     await RefreshToken.deleteOne({ token: refreshToken });
     res.status(200).json({ message: "Đăng xuất thành công" });
   } catch (err) {
     res.status(500).json({ message: "Lỗi server", error: err.message });
   }
 });
+
+// --- API Admin (Giữ nguyên) ---
 router.get("/admin", verifyAdmin, async (req, res) => {
   try {
     const users = await User.find();
@@ -391,6 +460,9 @@ router.get("/admin", verifyAdmin, async (req, res) => {
 
 // --- Xuất router (Chỉ 1 lần ở cuối file) ---
 module.exports = router;
+ feature/forgot-password
+// XÓA DẤU } THỪA Ở CUỐI FILE CỦA BẠN
+
 
 
 
@@ -400,4 +472,3 @@ module.exports = router;
 // ===========================================
 module.exports = router;
 
- main

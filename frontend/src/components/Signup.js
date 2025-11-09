@@ -17,7 +17,7 @@ const Signup = () => {
     }
 
     try {
-      await axios.post("http://localhost:5000/api/signup", { email, password });
+      await axios.post("http://localhost:5000/api/auth/signup", { email, password });
       navigate("/login");  // Chuyển hướng về trang login sau khi đăng ký thành công
     } catch (err) {
       setErrorMessage("Có lỗi xảy ra, vui lòng thử lại.");
